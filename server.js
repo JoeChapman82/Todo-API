@@ -1,5 +1,7 @@
 var express = require('express');
 var bodyParser = require('body-parser');
+var _ = require('underscore');
+// using the _ symbol for this node module is common apparantly
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -13,7 +15,6 @@ app.get('/', function(req, res) {
   res.send('Todo API Root');
 });
 
-// GET request /todos
 app.get('/todos', function(req, res) {
   return res.json(todos);
   // res.json converts response to json (shorter than JSON.stringify)
@@ -23,13 +24,7 @@ app.get('/todos/:id', function(req, res) {
   /// GET /todos/:id (to get parts)
   var todoId = parseInt(req.params.id, 10);
   // Use parseInt as req.params returns a string
-  var matchedTodo;
-    todos.forEach(function(todo) {
-      //where todo is the loop index item of the array the for each runs through
-      if (todoId === todo.id) {
-        matchedTodo = todo;
-      }
-    });
+  var matchedTodo = _.findWhere(todos, {id: todoId});
     if (matchedTodo) {
       res.json(matchedTodo);
     } else {
@@ -37,17 +32,15 @@ app.get('/todos/:id', function(req, res) {
     }
 });
 
-// Challenge
-// Add the body to the todos array
-// along with whatevers set. Add an Id field and set
-// it to todoNextIdinto todos request
-// add id field
-// push body into array
-// return todo item
-
-// POST /todos
 app.post('/todos', function(req, res) {
-  var body = req.body;
+  var body = _.pick(req.body, 'description', 'completed');
+    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+      // if completed isn't a boolean or description isn't a string
+      // .trim cuts out leading and trailing spaces
+      // This using methods from underscore library - see documentation at underscore.js
+      return res.status(400).send();
+    }
+  body.description = body.description.trim();
   body.id =  todoNextId++; // This sets value to body THEN increments the value
   todos.push(body);
 res.json(body);
