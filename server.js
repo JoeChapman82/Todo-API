@@ -1,15 +1,15 @@
 var express = require('express');
-var bodyParser = require('body-parser');
-var _ = require('underscore');
-// using the _ symbol for this node module is common apparantly
+var bodyParser = require('body-parser'); // bodyParser is middlewhere for express (look up it's methids such as .urlencoded)
+var _ = require('underscore'); // using the _ symbol for this node module is common apparantly
 
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
 var todoNextId = 1;
 
-// This from body-parser middlewhere to use req.body
+// This
 app.use(bodyParser.json());
+
 
 app.get('/', function(req, res) {
   res.send('Todo API Root');
@@ -44,6 +44,18 @@ app.post('/todos', function(req, res) {
   body.id =  todoNextId++; // This sets value to body THEN increments the value
   todos.push(body);
 res.json(body);
+});
+
+// DELETE /todos/:id
+app.delete('/todos/:id', function(req, res) {
+  var todoId = parseInt(req.params.id, 10);
+  var matchedTodo = _.findWhere(todos, {id: todoId});
+  if (!matchedTodo) {
+    res.status(404).json({"error": "No Todo found with that id"});
+  } else {
+  todos = _.without(todos, matchedTodo);
+  res.json(matchedTodo);
+}
 });
 
 
