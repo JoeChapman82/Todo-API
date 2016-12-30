@@ -1,15 +1,14 @@
 var express = require('express');
 var bodyParser = require('body-parser'); // bodyParser is middlewhere for express (look up it's methids such as .urlencoded)
 var _ = require('underscore'); // using the _ symbol for this node module is common apparantly
+var db = require('./db.js');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
 var todos = [];
 var todoNextId = 1;
 
-// This
 app.use(bodyParser.json());
-
 
 app.get('/', function(req, res) {
   res.send('Todo API Root');
@@ -46,15 +45,19 @@ app.get('/todos/:id', function(req, res) {
 
 app.post('/todos', function(req, res) {
   var body = _.pick(req.body, 'description', 'completed');
-    if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
-      // if completed isn't a boolean or description isn't a string
-      // .trim cuts out leading and trailing spaces
-      // This using methods from underscore library - see documentation at underscore.js
-      return res.status(400).send();
-    }
-  body.description = body.description.trim();
-  body.id =  todoNextId++; // This sets value to body THEN increments the value
-  todos.push(body);
+  db.todo.create(body).then(function(todo) {
+    res.json(todo.toJSON());
+  }, function(e) {
+    res.status(400).json(e);
+  });
+
+
+  //   if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
+  //     return res.status(400).send();
+  //   }
+  // body.description = body.description.trim();
+  // body.id =  todoNextId++; // This sets value to body THEN increments the value
+  // todos.push(body);
 res.json(body);
 });
 
@@ -96,7 +99,8 @@ app.put('/todos/:id', function(req, res) {
 
 });
 
-
-app.listen(PORT, function () {
-  console.log('Express listening on port ' + PORT + '!');
+db.sequelize.sync().then(function() {
+  app.listen(PORT, function () {
+    console.log('Express listening on port ' + PORT + '!');
+  });
 });
