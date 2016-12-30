@@ -24,7 +24,7 @@ function addGrade(grade) {
   // use ctrl c to exit
   // use kill to stop
   // use quit to exit degug
-  debugger;
+  // debugger;
   // grade = [24,36,48];      This way won't work:
 }
 
