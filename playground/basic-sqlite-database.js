@@ -31,7 +31,6 @@ sequelize.sync({
     }
   });
 
-
 //   Todo.create({
 //     description: 'Take bin out',
 //     completed: false

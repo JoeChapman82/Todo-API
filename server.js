@@ -32,16 +32,26 @@ app.get('/todos', function(req, res) {
 });
 
 app.get('/todos/:id', function(req, res) {
-  /// GET /todos/:id (to get parts)
   var todoId = parseInt(req.params.id, 10);
-  // Use parseInt as req.params returns a string
-  var matchedTodo = _.findWhere(todos, {id: todoId});
-    if (matchedTodo) {
-      res.json(matchedTodo);
-    } else {
-      res.status(404).send();
-    }
+  db.todo.findById(todoId).then(function(todo) {
+    // double !! flips back to boolean value
+  if (!!todo) {
+    res.json(todo.toJSON());
+  } else {
+    res.status(404).send();
+  }
+}, function(e) {
+  res.status(500).send();
 });
+});
+    //      Same as above but with underscore, no db
+  // var matchedTodo = _.findWhere(todos, {id: todoId});
+  //   if (matchedTodo) {
+  //     res.json(matchedTodo);
+  //   } else {
+  //     res.status(404).send();
+  //   }
+// });
 
 app.post('/todos', function(req, res) {
   var body = _.pick(req.body, 'description', 'completed');
@@ -50,8 +60,7 @@ app.post('/todos', function(req, res) {
   }, function(e) {
     res.status(400).json(e);
   });
-
-
+  //        Same as above but using underscore instead:
   //   if (!_.isBoolean(body.completed) || !_.isString(body.description) || body.description.trim().length === 0) {
   //     return res.status(400).send();
   //   }
