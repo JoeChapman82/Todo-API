@@ -184,7 +184,7 @@ app.post('/users/login', function(req, res) {
       token: token
     });
 }).then(function(tokenInstance) {
-  res.header('Auth', tokenInstance.get('token')).json(userInsance.toPublicJSON());
+  res.header('Auth', tokenInstance.get('token')).json(userInstance.toPublicJSON());
 }).catch(function() {
     res.status(401).send();
   });
